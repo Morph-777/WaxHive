@@ -34,7 +34,7 @@ bash tools/build-flatpak.sh
 bash tools/install-flatpak.sh
 ```
 
-The installer is written to `dist/WaxHive.flatpak`. Dependencies are pinned by the manifest, while the final application module builds this checkout. The installation helper copies development preferences once if WaxHive has no settings yet, preserving existing WaxHive preferences on later updates.
+The installer is written to `dist/WaxHive.flatpak`. A companion `WaxHive.Sources.flatpak` contains the application and bundled dependency sources; it is for source redistribution, not required to run WaxHive. Dependencies are pinned by the manifest, while the final application module builds this checkout. The installation helper copies development preferences once if WaxHive has no settings yet, preserving existing WaxHive preferences on later updates.
 
 For an installed-app smoke test:
 

@@ -1,7 +1,7 @@
-# GNOME Music library workspace
+# WaxHive library workspace
 
 This checkout starts from GNOME Music master. It adapts the browsing layout
-from the connected Foobee conversation using GTK 4 and libadwaita.
+for a desktop album-and-track browser using GTK 4 and libadwaita.
 
 Music opens by default, with three columns:
 
@@ -61,19 +61,20 @@ the playback buttons. Album content becomes vertical
 only at this narrow breakpoint; the desktop arrangement stays horizontal. The selected artist is remembered between launches; playback itself
 is not restored automatically.
 
-## Run on this machine
+## Run from a checkout
 
 The installed `org.gnome.Music` Flatpak supplies the GTK, libadwaita, LocalSearch,
 Grilo and GStreamer dependencies. The development launcher compiles resources
 and schemas, then loads Python code directly from this checkout:
 
 ```bash
-cd /var/home/morph/PROJECTS/gnome-musicbee/gnome-music
+cd WaxHive
 bash tools/run-development.sh
 ```
 
-The development app uses `org.gnome.Music.LayoutDev` and separate settings in
-`builddir/config`. It does not replace the installed Music application. It reads
+The development app uses `org.gnome.Music.LayoutDev`. The Flatpak runtime stores
+its development preferences in the GNOME Music sandbox; the permanent WaxHive
+package has its own settings and can copy these preferences once. It reads
 the same indexed music library; changes to favorites still affect library
 metadata. A standard Meson build remains supported in an environment with the
 dependencies listed in `meson.build`.
@@ -105,5 +106,5 @@ and `builddir/music-library-narrow.png`. It uses memory-only settings.
 
 The installed runtime logs a theme preference warning and embedded JPEG artwork
 conversion warnings for two existing albums. The layout and smoke checks pass;
-those runtime warnings remain. A full Meson/package build has not been run on
-the host, which lacks the GTK development packages and Meson.
+those runtime warnings remain. The separate WaxHive Flatpak has been built with the GNOME 51 SDK and tested
+using its installed modules and resources. See README.md for packaging steps.

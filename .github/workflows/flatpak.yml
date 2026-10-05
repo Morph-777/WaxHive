@@ -26,6 +26,17 @@ jobs:
           build-dir: builddir/flatpak-app
           repo-dir: builddir/flatpak-repo
           artifact-name: WaxHive-x86_64
+      - name: Bundle corresponding sources
+        run: |
+          flatpak-builder --user --force-clean --disable-rofiles-fuse --bundle-sources \
+            --default-branch=stable --repo=builddir/flatpak-repo \
+            builddir/flatpak-app io.github.Morph777.WaxHive.json
+          flatpak build-bundle --runtime builddir/flatpak-repo WaxHive.Sources.flatpak \
+            io.github.Morph777.WaxHive.Sources stable
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WaxHive-sources
+          path: WaxHive.Sources.flatpak
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: flatpak
@@ -35,10 +46,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: WaxHive-x86_64
+          pattern: WaxHive-*
+          merge-multiple: true
       - name: Publish installer
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           WAX_TAG: ${{ github.ref_name }}
-        run: gh release create "$WAX_TAG" WaxHive.flatpak --verify-tag --title "WaxHive $WAX_TAG" --generate-notes
+        run: gh release create "$WAX_TAG" WaxHive.flatpak WaxHive.Sources.flatpak --verify-tag --title "WaxHive $WAX_TAG" --generate-notes
