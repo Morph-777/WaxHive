@@ -4,7 +4,7 @@ WaxHive is a personal fork of [GNOME Music](https://gitlab.gnome.org/GNOME/gnome
 
 WaxHive has its own application identity, `io.github.Morph777.WaxHive`, launcher, and settings. It can be installed alongside GNOME Music. It uses the GNOME Music icon and credits the original contributors; this is an independent fork.
 
-## Install on Bluefin or another Flatpak desktop
+## Install as flatpak
 
 Download `WaxHive.flatpak` from [Releases](https://github.com/Morph-777/WaxHive/releases), then run:
 
@@ -13,7 +13,7 @@ flatpak install --user ./WaxHive.flatpak
 flatpak run io.github.Morph777.WaxHive
 ```
 
-The launcher appears as **WaxHive**. It follows the desktop appearance and reads custom GTK 4 styles from your `~/.config/gtk-4.0` directory with read-only access. No package layering, distrobox, or checkout is needed to run it. The GNOME 51 runtime is downloaded from Flathub if necessary. Music in your Music folder is available inside the sandbox; the app uses the desktop's music index when available and includes its own indexer as a fallback.
+The launcher appears as **WaxHive**. Music in your Music folder is available inside the sandbox; the app uses the desktop's music index when available and includes its own indexer as a fallback.
 
 For a library elsewhere, explicitly grant its directory:
 
@@ -21,7 +21,7 @@ For a library elsewhere, explicitly grant its directory:
 flatpak override --user --filesystem=/path/to/music io.github.Morph777.WaxHive
 ```
 
-Install a newer release with the same `flatpak install --user ./WaxHive.flatpak` command and choose to update the installed app. Bundle releases require this manual update step. There is no hosted automatic-update Flatpak repository yet.
+Install a newer release with the same `flatpak install --user ./WaxHive.flatpak` command and choose to update the installed app. Bundle releases require this manual update step. There is no hosted automatic-update Flatpak repository.
 
 ## Build and install from source
 
