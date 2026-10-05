@@ -1,8 +1,8 @@
 # WaxHive
 
-WaxHive is a personal fork of [GNOME Music](https://gitlab.gnome.org/GNOME/gnome-music), built with GTK 4 and libadwaita. Its desktop layout puts album artists on the left, albums and compact track lists in the center, and the playing queue and track information on the right. Panel sizes are remembered, artwork corners are configurable, and playback controls include an inline volume slider.
+WaxHive is a personal fork of [GNOME Music](https://gitlab.gnome.org/GNOME/gnome-music), built with GTK 4 and libadwaita. Its desktop layout puts album artists on the left, albums and compact track lists in the center, and the playing queue and track information on the right. Artwork corner radius can be toggled, and playback controls include an inline volume slider. I called it WaxHive because its inspired by the layout of [MusicBee](https://getmusicbee.com/), and i like Vinyl records.
 
-WaxHive has its own application identity, `io.github.Morph777.WaxHive`, launcher, and settings. It can be installed alongside GNOME Music. It uses the GNOME Music icon and credits the original contributors; this is an independent fork.
+WaxHive has its own application identity, `io.github.Morph777.WaxHive`, launcher, and settings. It can be installed alongside GNOME Music. It uses the GNOME Music icon (for now) and credits the original contributors; this is an independent fork.
 
 ## Install as flatpak
 
