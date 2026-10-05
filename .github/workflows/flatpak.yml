@@ -53,4 +53,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           WAX_TAG: ${{ github.ref_name }}
-        run: gh release create "$WAX_TAG" WaxHive.flatpak WaxHive.Sources.flatpak --verify-tag --title "WaxHive $WAX_TAG" --generate-notes
+        run: |
+          if gh release view "$WAX_TAG" >/dev/null 2>&1; then
+            gh release upload "$WAX_TAG" WaxHive.flatpak WaxHive.Sources.flatpak --clobber
+          else
+            gh release create "$WAX_TAG" WaxHive.flatpak WaxHive.Sources.flatpak --verify-tag --title "WaxHive $WAX_TAG" --generate-notes
+          fi
