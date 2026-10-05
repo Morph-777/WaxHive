@@ -6,6 +6,17 @@
       <object class="AdwPreferencesPage">
         <child>
           <object class="AdwPreferencesGroup">
+            <property name="title" translatable="true">Appearance</property>
+            <child>
+              <object class="AdwSwitchRow" id="_rounded_artwork_row">
+                <property name="title" translatable="true">Rounded Artwork Corners</property>
+                <property name="subtitle" translatable="true">Round the corners of album covers and artist artwork</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup">
             <property name="title" translatable="true">Player Settings</property>
             <child>
               <object class="AdwComboRow" id="_repeatmode_row">
@@ -16,7 +27,8 @@
                       <item translatable="true">None</item>
                       <item translatable="true">Song</item>
                       <item translatable="true">All</item>
-                      <item translatable="true">Shuffle</item>
+                      <item translatable="true">Shuffle Tracks</item>
+                      <item translatable="true">Shuffle Albums</item>
                     </items>
                   </object>
                 </property>

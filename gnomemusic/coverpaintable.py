@@ -28,7 +28,7 @@ import typing
 
 import gi
 gi.require_versions({"Gdk": "4.0", "Gtk": "4.0", "Gsk": "4.0"})
-from gi.repository import Adw, Gsk, Gtk, GObject, Graphene, Gdk
+from gi.repository import Adw, Gsk, Gtk, GObject, Graphene, Gdk, Gio
 
 from gnomemusic.texturecache import TextureCache
 from gnomemusic.utils import ArtSize, DefaultIconType
@@ -71,6 +71,13 @@ class CoverPaintable(GObject.GObject, Gdk.Paintable):
         self._texture_cache = TextureCache()
         self._thumbnail_id = 0
         self._widget = widget
+        application = Gio.Application.get_default()
+        app_id = application.get_application_id() if application else ""
+        self._settings = Gio.Settings.new(
+            "io.github.Morph777.WaxHive" if app_id.startswith("io.github.Morph777.WaxHive")
+            else "org.gnome.Music")
+        self._settings.connect_object(
+            "changed::rounded-artwork", lambda paintable, key: paintable.invalidate_contents(), self)
 
         self._style_manager.connect("notify::dark", self._on_dark_changed)
 
@@ -137,12 +144,9 @@ class CoverPaintable(GObject.GObject, Gdk.Paintable):
         snapshot.pop()
 
     def _radius(self) -> float:
-        if self._icon_type == DefaultIconType.ARTIST:
-            return 90.0
-        elif self._art_size == ArtSize.SMALL:
-            return 4.5
-        else:
-            return 9.0
+        if not self._settings.get_boolean("rounded-artwork"):
+            return 0.0
+        return 4.5 if self._art_size == ArtSize.SMALL else 9.0
 
     def _on_dark_changed(
             self, style_manager: Adw.StyleManager,
@@ -182,6 +186,9 @@ class CoverPaintable(GObject.GObject, Gdk.Paintable):
             self._thumbnail_id = 0
 
         self._coreobject = coreobject
+        if self._coreobject is None:
+            self.invalidate_contents()
+            return
         self._thumbnail_id = self._coreobject.connect(
             "notify::thumbnail", self._on_thumbnail_changed)
 

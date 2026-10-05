@@ -10,7 +10,6 @@ builddir/
 /.*.sw[nop]
 /.deps
 /.dirstamp
-/.gitignore
 /.libs
 /.mypy_cache
 /AUTHORS
@@ -84,3 +83,7 @@ gnome-music
 /help/**/*.mo
 /help/**/*.stamp
 /help/**/legal.xml
+
+/.flatpak-builder/
+/dist/
+__pycache__/

@@ -5,6 +5,7 @@
         <value nick="song" value="1"/>
         <value nick="all" value="2"/>
         <value nick="shuffle" value="3"/>
+        <value nick="shuffle-albums" value="4"/>
     </enum>
     <enum id="org.gnome.Music.ReplayGain">
         <value nick="disabled" value="0"/>
@@ -13,9 +14,34 @@
     </enum>
     <schema path="/org/gnome/Music/" id="org.gnome.Music" gettext-domain="org.gnome.Music">
         <key type="ai" name="window-size">
-            <default>[768, 600]</default>
+            <default>[1280, 800]</default>
             <summary>Window size</summary>
             <description>Window size (width and height).</description>
+        </key>
+        <key type="s" name="selected-album-artist">
+            <default>''</default>
+            <summary>Selected album artist</summary>
+            <description>The last artist selected in the Music browser.</description>
+        </key>
+        <key type="b" name="rounded-artwork">
+            <default>false</default>
+            <summary>Rounded artwork corners</summary>
+            <description>Use rounded corners for album covers and artist artwork.</description>
+        </key>
+        <key type="d" name="artist-sidebar-fraction">
+            <default>0.25</default>
+            <range min="0.05" max="0.65"/>
+            <summary>Album artist column width</summary>
+        </key>
+        <key type="d" name="playback-sidebar-fraction">
+            <default>0.26</default>
+            <range min="0.05" max="0.65"/>
+            <summary>Playback column width</summary>
+        </key>
+        <key type="i" name="queue-info-position">
+            <default>190</default>
+            <range min="0" max="10000"/>
+            <summary>Queue and track information divider position</summary>
         </key>
         <key type="b" name="window-maximized">
             <default>true</default>

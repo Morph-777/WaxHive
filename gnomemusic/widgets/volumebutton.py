@@ -14,7 +14,7 @@ class VolumeButton(Gtk.Box):
     __gtype_name__ = "VolumeButton"
 
     _adjustment = Gtk.Template.Child()
-    _menu_button = Gtk.Template.Child()
+    _scale = Gtk.Template.Child()
     _mute_button = Gtk.Template.Child()
 
     mute = GObject.Property(type=bool, default=False)
@@ -30,12 +30,22 @@ class VolumeButton(Gtk.Box):
             GObject.BindingFlags.BIDIRECTIONAL
             | GObject.BindingFlags.SYNC_CREATE)
 
+        scroll = Gtk.EventControllerScroll(flags=Gtk.EventControllerScrollFlags.BOTH_AXES)
+        scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        scroll.connect("scroll", self._on_scroll)
+        self._scale.add_controller(scroll)
+
         self._adjustment_id = self._adjustment.connect(
             "value-changed", self._on_adjustment_changed)
         self._mute_id = self.connect(
             "notify::mute", self._on_mute_changed)
         self._volume_id = self.connect(
             "notify::volume", self._on_volume_changed)
+
+    def _on_scroll(self, controller, dx, dy):
+        delta = dy if dy else dx
+        self._adjustment.set_value(self._adjustment.get_value() - delta * 0.01)
+        return True
 
     def _on_adjustment_changed(self, adjustment: Gtk.Adjustment) -> None:
         with GObject.signal_handler_block(self, self._volume_id):
@@ -106,4 +116,4 @@ class VolumeButton(Gtk.Box):
         else:
             icon_name = "audio-volume-high-symbolic"
 
-        self._menu_button.props.icon_name = icon_name
+        self._mute_button.props.icon_name = icon_name

@@ -10,11 +10,17 @@ gnome.compile_resources(
 )
 
 schema_src = PROJECT_RDNN_NAME + '.gschema.xml'
+# Keep the upstream schema for checkout-based tests; install a separate one for WaxHive.
+run_command(py_installation, '-c',
+  'from pathlib import Path; import sys; text = Path(sys.argv[1]).read_text(); text = text.replace("org.gnome.Music", "io.github.Morph777.WaxHive").replace("/org/gnome/Music/", "/io/github/Morph777/WaxHive/"); Path(sys.argv[2]).write_text(text)',
+  meson.current_source_dir() / schema_src,
+  meson.current_build_dir() / 'io.github.Morph777.WaxHive.gschema.xml', check: true)
+
 gnome.compile_schemas(build_by_default: true, depend_files: files(schema_src))
 
 # Installing the schema file
 install_data(
-  schema_src,
+  meson.current_build_dir() / 'io.github.Morph777.WaxHive.gschema.xml',
   install_dir: join_paths(get_option('datadir'), 'glib-2.0/schemas')
 )
 
@@ -72,7 +78,8 @@ endif
 
 # Installing the default icon
 install_data(
-    join_paths('icons/hicolor/scalable/apps', APPLICATION_ID + '.svg'),
+    join_paths('icons/hicolor/scalable/apps', PROJECT_RDNN_NAME + '.svg'),
+    rename: APPLICATION_ID + '.svg',
     install_dir: join_paths(get_option('prefix'), get_option('datadir'), 'icons/hicolor/scalable/apps')
 )
 

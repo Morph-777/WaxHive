@@ -40,7 +40,7 @@ class Application(Adw.Application):
             application_id=application_id,
             flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.props.resource_base_path = "/org/gnome/Music"
-        GLib.set_application_name(_("Music"))
+        GLib.set_application_name("WaxHive")
         GLib.set_prgname(application_id)
         GLib.setenv("PULSE_PROP_application.id", application_id, True)
 
@@ -56,7 +56,9 @@ class Application(Adw.Application):
         self._coregrilo: CoreGrilo | None = None
         self._coremodel = CoreModel(self)
 
-        self._settings = Gio.Settings.new('org.gnome.Music')
+        self._settings = Gio.Settings.new(
+            'io.github.Morph777.WaxHive' if application_id.startswith('io.github.Morph777.WaxHive')
+            else 'org.gnome.Music')
         self._player = Player(self)
 
         InhibitSuspend(self)

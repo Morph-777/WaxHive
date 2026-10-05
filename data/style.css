@@ -102,3 +102,57 @@ button.star.interacted.starred image {
 button.star.interacted:not(.starred) image {
   animation: rotate_unstar 0.4s ease;
 }
+
+/* Library workspace uses libadwaita surfaces and the system accent. */
+/* About 30 px per desktop track, including the row's action buttons. */
+.library-album .songwidget { padding: 2px 6px; min-height: 24px; }
+.library-album .songwidget button { min-height: 22px; min-width: 22px; padding: 2px; }
+.library-album .songwidget .star { margin-left: 4px; margin-right: 4px; }
+.library-album .songwidget label { min-height: 0; }
+.library-album .disc-label { padding: 6px 0; }
+.queue-row { padding: 4px 8px; }
+.queue-row.playing, .library-album .songwidget.playing {
+  background-color: color-mix(in srgb, var(--accent-bg-color) 15%, transparent);
+  border-radius: 6px;
+}
+.queue-row.playing > image { color: var(--accent-color); }
+.now-playing-panel listview { background-color: transparent; }
+
+.now-playing-artwork { padding: 0; border: none; border-radius: 0; }
+/* Keep application chrome stable when the window loses focus. */
+headerbar.music-header, headerbar.music-header:backdrop,
+headerbar.music-header > windowhandle, headerbar.music-header:backdrop > windowhandle,
+headerbar.music-header > windowhandle > box,
+headerbar.music-header:backdrop > windowhandle > box,
+.music-transport, .music-transport:backdrop,
+.music-transport > revealer > box, .music-transport:backdrop > revealer > box {
+  background-color: color-mix(in srgb, var(--window-bg-color) 95%, var(--window-fg-color) 5%);
+  color: var(--window-fg-color);
+}
+
+/* Flat scrollbar handles without the theme's dark border or shadow. */
+scrollbar slider, scrollbar slider:hover, scrollbar slider:active {
+  border-color: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+/* Libadwaita dims the bar contents with a filter independently of colors. */
+headerbar.music-header > windowhandle,
+headerbar.music-header:backdrop > windowhandle,
+.music-transport > revealer > box,
+.music-transport:backdrop > revealer > box {
+  filter: none;
+  transition: none;
+}
+
+/* ToolbarView applies its own dimming above the header/action bars. */
+.music-workspace-toolbar > .top-bar > windowhandle,
+.music-workspace-toolbar > .bottom-bar > windowhandle,
+.music-workspace-toolbar > .top-bar:backdrop > windowhandle,
+.music-workspace-toolbar > .bottom-bar:backdrop > windowhandle,
+.music-transport > revealer > box > *,
+.music-transport > revealer > box:backdrop > * {
+  filter: none;
+  transition: none;
+}

@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 from typing import Optional
+from gettext import ngettext
 
 from gi.repository import GObject, Gtk
 
@@ -47,6 +48,7 @@ class ArtistTile(Gtk.Box):
 
     _cover_image = Gtk.Template.Child()
     _label = Gtk.Template.Child()
+    _count = Gtk.Template.Child()
 
     text = GObject.Property(type=str, default='')
 
@@ -55,24 +57,16 @@ class ArtistTile(Gtk.Box):
         super().__init__()
 
         self._coreartist: Optional[CoreArtist] = None
+        self._count_id = 0
 
         self._cover_image.set_size_request(
             ArtSize.XSMALL.width, ArtSize.XSMALL.height)
         self._cover_image.props.pixel_size = ArtSize.XSMALL.height
         self._cover_image.props.paintable = CoverPaintable(
-            self, ArtSize.XSMALL, DefaultIconType.ARTIST)
+            self, ArtSize.XSMALL, DefaultIconType.ALBUM)
 
         self.bind_property('text', self._label, 'label')
         self.bind_property('text', self._label, 'tooltip-text')
-
-        ctrl = Gtk.GestureClick()
-        ctrl.connect("pressed", self._on_button_pressed)
-        self.add_controller(ctrl)
-
-    def _on_button_pressed(
-            self, gesture: Gtk.GestureClick, n_press: int, x: float,
-            y: float) -> None:
-        self.emit("clicked")
 
     @GObject.Property(
         type=CoreArtist, flags=GObject.ParamFlags.READWRITE, default=None)
@@ -90,7 +84,15 @@ class ArtistTile(Gtk.Box):
 
         :param CoreArtist coreartist: The coreartist to use
         """
+        if self._coreartist is not None and self._count_id:
+            self._coreartist.disconnect(self._count_id)
         self._coreartist = coreartist
+        self._count_id = coreartist.connect("notify::album-count", self._update_count)
+        self._update_count()
 
         self._cover_image.props.paintable.props.coreobject = coreartist
         self.props.text = coreartist.props.artist
+
+    def _update_count(self, *args):
+        count = self._coreartist.props.album_count
+        self._count.set_label(ngettext("{} album", "{} albums", count).format(count))

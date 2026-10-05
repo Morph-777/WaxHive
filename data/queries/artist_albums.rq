@@ -11,16 +11,11 @@ WHERE {
         nie:title(?album) AS ?title
         YEAR(nie:contentCreated(?song)) AS ?publicationDate
       WHERE {
-        {
-          ?song a nmm:MusicPiece;
-                  nmm:musicAlbum ?album;
-                  nmm:artist ~artist .
-        } UNION {
-          ?song a nmm:MusicPiece;
-                  nmm:musicAlbum ?album .
-          ?album a nmm:MusicAlbum;
-                   nmm:albumArtist ~artist .
-        }
+        ?song a nmm:MusicPiece;
+                nmm:musicAlbum ?album .
+        OPTIONAL { ?album nmm:albumArtist ?album_artist . }
+        FILTER (COALESCE(?album_artist,
+          IRI("urn:gnome-music:unknown-album-artist")) = ~artist)
         {location_filter}
       }
       GROUP BY ?album

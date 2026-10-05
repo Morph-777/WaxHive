@@ -1,0 +1,18 @@
+WaxHive is a modified version of GNOME Music.
+Upstream: https://gitlab.gnome.org/GNOME/gnome-music
+WaxHive: https://github.com/Morph-777/WaxHive
+
+GNOME Music copyright notices, contributor credits, license text, and the
+GStreamer exception are retained. The original authors' credits are available
+in the application's About dialog and throughout the source and Git history.
+The GNOME Music icon is retained with its existing license.
+
+WaxHive changes by Morph (2026) include the album-artist desktop layout,
+compact album and playback views, configurable artwork corners, persistent
+panel sizing, keyboard navigation, and separate Flatpak packaging.
+These changes use the same GPL-2.0-or-later license and GStreamer exception
+as the application code they extend. LICENSE contains the original terms.
+
+Third-party dependencies retain their respective licenses. Their pinned
+source archives and repository revisions are listed in
+io.github.Morph777.WaxHive.json and subprojects/shared-modules.

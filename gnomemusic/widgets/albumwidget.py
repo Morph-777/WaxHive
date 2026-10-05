@@ -27,7 +27,7 @@ from gettext import gettext as _, ngettext
 from typing import Optional, Union
 import typing
 
-from gi.repository import Adw, Gio, GLib, GObject, Gtk
+from gi.repository import Adw, Gio, GLib, GObject, Gtk, Pango
 
 from gnomemusic.corealbum import CoreAlbum
 from gnomemusic.coverpaintable import CoverPaintable
@@ -42,6 +42,41 @@ if typing.TYPE_CHECKING:
     from gnomemusic.coresong import CoreSong
     from gnomemusic.queue import Queue
     from gnomemusic.widgets.songwidget import SongWidget
+
+
+class AlbumInfo(Adw.Bin):
+    """Allocate a stable desktop column independently of text natural widths."""
+
+    def __init__(self, orientation):
+        super().__init__()
+        self._box = Gtk.Box(orientation=orientation)
+        self.set_child(self._box)
+        self.set_layout_manager(None)
+
+    def get_orientation(self):
+        return self._box.get_orientation()
+
+    def set_orientation(self, orientation):
+        self._box.set_orientation(orientation)
+        self.queue_resize()
+
+    def set_spacing(self, spacing):
+        self._box.set_spacing(spacing)
+
+    def append(self, child):
+        self._box.append(child)
+
+    def do_measure(self, orientation, for_size):
+        if (orientation == Gtk.Orientation.HORIZONTAL
+                and self.get_orientation() == Gtk.Orientation.VERTICAL):
+            return 180, 180, -1, -1
+        return self._box.measure(orientation, for_size)
+
+    def do_size_allocate(self, width, height, baseline):
+        self._box.allocate(width, height, baseline, None)
+
+    def do_snapshot(self, snapshot):
+        self.snapshot_child(self._box, snapshot)
 
 
 @Gtk.Template(resource_path='/org/gnome/Music/ui/AlbumWidget.ui')
@@ -82,6 +117,9 @@ class AlbumWidget(Adw.Bin):
         self._model_signal_id = 0
 
         self._playlist_dialog: Optional[PlaylistDialog] = None
+        self._workspace_root = None
+        self._workspace_info = None
+        self._narrow = False
 
         self._cover_image.set_size_request(
             ArtSize.LARGE.width, ArtSize.LARGE.height)
@@ -106,6 +144,77 @@ class AlbumWidget(Adw.Bin):
             action_group.add_action(action)
 
         self.insert_action_group("album", action_group)
+
+    def set_compact(self) -> None:
+        """Keep cover and metadata beside tracks in the library workspace."""
+        self.add_css_class("library-album")
+        clamp = self.get_child()
+        clamp.set_margin_top(18)
+        clamp.set_margin_bottom(18)
+        clamp.set_margin_start(18)
+        clamp.set_margin_end(18)
+        root = clamp.get_child()
+        clamp.set_child(None)
+        self.set_child(root)
+        root.set_margin_start(8)
+        root.set_margin_end(8)
+        root.set_margin_top(12)
+        root.set_margin_bottom(12)
+        info = self._cover_image.get_parent()
+        metadata = self._title_label.get_parent()
+        root.remove(self._disc_list_box)
+        info.remove(metadata)
+        root.remove(info)
+        info.remove(self._cover_image)
+        info = AlbumInfo(orientation=Gtk.Orientation.VERTICAL)
+        info.append(self._cover_image)
+        root.append(info)
+        info.set_spacing(12)
+        info.set_hexpand(False)
+        info.set_valign(Gtk.Align.START)
+        info.append(metadata)
+        metadata.set_margin_top(0)
+        metadata.set_halign(Gtk.Align.FILL)
+        self._title_label.remove_css_class("title-1")
+        self._title_label.add_css_class("heading")
+        for label in (self._title_label, self._artist_label,
+                      self._released_label, self._composer_label):
+            label.set_max_width_chars(18)
+            label.set_width_chars(-1)
+            label.set_ellipsize(Pango.EllipsizeMode.NONE)
+            label.set_wrap(True)
+            label.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
+            label.set_halign(Gtk.Align.FILL)
+            label.set_xalign(0)
+        self._play_button.get_parent().set_visible(False)
+        self._title_label.set_margin_bottom(6)
+        self._title_label.set_wrap(True)
+        self._cover_image.set_size_request(128, 128)
+        self._cover_image.set_pixel_size(128)
+        self._cover_image.set_halign(Gtk.Align.START)
+        self._cover_image.set_from_paintable(CoverPaintable(
+            self._cover_image, ArtSize.MEDIUM, DefaultIconType.ALBUM))
+        root.set_orientation(Gtk.Orientation.HORIZONTAL)
+        root.set_spacing(18)
+        self._workspace_root = root
+        self._workspace_info = info
+        self._disc_list_box.set_margin_top(0)
+        self._disc_list_box.set_hexpand(True)
+        root.append(self._disc_list_box)
+        self.props.narrow = self._narrow
+
+    @GObject.Property(type=bool, default=False)
+    def narrow(self):
+        return self._narrow
+
+    @narrow.setter
+    def narrow(self, value):
+        self._narrow = value
+        if self._workspace_root is not None:
+            self._workspace_root.set_orientation(
+                Gtk.Orientation.VERTICAL if value else Gtk.Orientation.HORIZONTAL)
+            self._workspace_info.set_orientation(
+                Gtk.Orientation.HORIZONTAL if value else Gtk.Orientation.VERTICAL)
 
     @GObject.Property(
         type=CoreAlbum, default=None, flags=GObject.ParamFlags.READWRITE)
@@ -240,14 +349,13 @@ class AlbumWidget(Adw.Bin):
         if not self._corealbum:
             return
 
-        mins = (self._corealbum.props.duration // 60) + 1
-        mins_text = ngettext("{} minute", "{} minutes", mins).format(mins)
+        duration = self._corealbum.props.duration
         year = self._corealbum.props.year
-
-        if year is None:
-            label = mins_text
-        else:
-            label = f"{year}, {mins_text}"
+        parts = [year] if year else []
+        if duration > 0:
+            mins = (duration + 59) // 60
+            parts.append(ngettext("{} minute", "{} minutes", mins).format(mins))
+        label = ", ".join(parts)
 
         self._released_label.props.label = label
 

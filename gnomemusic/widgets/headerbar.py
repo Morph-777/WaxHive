@@ -24,7 +24,8 @@
 
 from enum import IntEnum
 
-from gi.repository import Adw, GObject, Gtk
+from gettext import gettext as _
+from gi.repository import Adw, Gio, GObject, Gtk
 
 
 @Gtk.Template(resource_path="/org/gnome/Music/ui/HeaderBar.ui")
@@ -54,6 +55,14 @@ class HeaderBar(Adw.Bin):
         """
         super().__init__()
 
+        self._headerbar.add_css_class("music-header")
+        menu = Gio.Menu()
+        for title, action in ((_("Music"), "win.view_artists"),
+                              (_("Now Playing"), "win.view_now_playing"),
+                              (_("Playlists"), "win.view_playlists")):
+            menu.append(title, action)
+        self._compact_switcher = Gtk.MenuButton(label=_("Music"), menu_model=menu)
+        self._compact = False
         self._stack_switcher = Adw.ViewSwitcher(
             focusable=False, halign="center",
             policy=Adw.ViewSwitcherPolicy.WIDE)
@@ -66,6 +75,16 @@ class HeaderBar(Adw.Bin):
             "search-mode-active", self._search_button, "active",
             GObject.BindingFlags.BIDIRECTIONAL
             | GObject.BindingFlags.SYNC_CREATE)
+
+    @GObject.Property(type=bool, default=False)
+    def compact(self):
+        return self._compact
+
+    @compact.setter
+    def compact(self, value):
+        self._compact = value
+        if hasattr(self, "_state"):
+            self._update()
 
     @GObject.Property
     def state(self):
@@ -101,7 +120,8 @@ class HeaderBar(Adw.Bin):
         if self.props.state != HeaderBar.State.MAIN:
             self._headerbar.props.title_widget = None
         else:
-            self._headerbar.props.title_widget = self._stack_switcher
+            self._headerbar.props.title_widget = (
+                self._compact_switcher if self._compact else self._stack_switcher)
 
         self._menu_button.props.visible = (
             self.props.state in [HeaderBar.State.MAIN, HeaderBar.State.EMPTY]

@@ -557,7 +557,8 @@ class MPRIS(DBusInterface):
     def _on_repeat_mode_changed(self, player, param):
         properties = {}
 
-        is_shuffled = self._player.props.repeat_mode == RepeatMode.SHUFFLE
+        is_shuffled = self._player.props.repeat_mode in (
+            RepeatMode.SHUFFLE, RepeatMode.SHUFFLE_ALBUMS)
         if is_shuffled != self._previous_is_shuffled:
             properties["Shuffle"] = GLib.Variant("b", is_shuffled)
             self._previous_is_shuffled = is_shuffled
@@ -828,7 +829,7 @@ class MPRIS(DBusInterface):
                 'CanSetFullscreen': GLib.Variant('b', False),
                 'CanRaise': GLib.Variant('b', True),
                 'HasTrackList': GLib.Variant('b', True),
-                'Identity': GLib.Variant('s', 'Music'),
+                'Identity': GLib.Variant('s', 'WaxHive'),
                 'DesktopEntry': GLib.Variant('s', application_id),
                 'SupportedUriSchemes': GLib.Variant('as', [
                     'file'
@@ -843,7 +844,8 @@ class MPRIS(DBusInterface):
         elif interface_name == MPRIS.MEDIA_PLAYER2_PLAYER_IFACE:
             position_msecond = int(self._player.get_position() * 1e6)
             playback_status = self._get_playback_status()
-            is_shuffle = (self._player.props.repeat_mode == RepeatMode.SHUFFLE)
+            is_shuffle = self._player.props.repeat_mode in (
+                RepeatMode.SHUFFLE, RepeatMode.SHUFFLE_ALBUMS)
             can_play = (self._player.props.current_song is not None)
             has_previous = (self._player.props.has_previous)
             return {

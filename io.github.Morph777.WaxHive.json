@@ -1,0 +1,186 @@
+{
+  "id": "io.github.Morph777.WaxHive",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "51",
+  "sdk": "org.gnome.Sdk",
+  "command": "waxhive",
+  "finish-args": [
+    "--device=dri",
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--share=network",
+    "--socket=wayland",
+    "--talk-name=org.freedesktop.Tracker3.Writeback",
+    "--socket=pulseaudio",
+    "--filesystem=xdg-music",
+    "--system-talk-name=org.freedesktop.login1",
+    "--add-policy=Tracker3.dbus:org.freedesktop.Tracker3.Miner.Files=tracker:Audio",
+    "--env=GSETTINGS_BACKEND=keyfile"
+  ],
+  "cleanup": [
+    "/include",
+    "/lib/pkgconfig",
+    "/share/pkgconfig",
+    "/share/aclocal",
+    "/man",
+    "/share/man",
+    "/share/gtk-doc",
+    "/share/vala",
+    "*.la",
+    "*.a"
+  ],
+  "modules": [
+    "subprojects/shared-modules/lua5.4/lua-5.4.json",
+    {
+      "name": "libmediaart",
+      "buildsystem": "meson",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://download.gnome.org/sources/libmediaart/1.9/libmediaart-1.9.7.tar.xz",
+          "sha256": "2b43dd9f54f0d8d0b89e2addb83341ab06d7b98cb1b2e704383584af9c560f6b"
+        }
+      ]
+    },
+    {
+      "name": "gst-python",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Dpygi-overrides-dir=/app/lib/python3.14/site-packages/gi/overrides/"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://gstreamer.freedesktop.org/src/gst-python/gst-python-1.24.13.tar.xz",
+          "sha256": "abb9a1edc11d67a463b6cef7b74a8b10ea6c342760c012d597102a7bfb7e09da"
+        }
+      ]
+    },
+    {
+      "name": "localsearch",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Dbattery_detection=none",
+        "-Ddefault_index_single_dirs=",
+        "-Ddefault_index_recursive_dirs=&MUSIC",
+        "-Ddomain_prefix=io.github.Morph777.WaxHive",
+        "-Dexif=disabled",
+        "-Dfunctional_tests=false",
+        "-Diptc=disabled",
+        "-Dlandlock=disabled",
+        "-Dman=false",
+        "-Dminer_fs=true",
+        "-Dminer_fs_cache_location=$XDG_CACHE_HOME/gnome-music/miner/files",
+        "-Draw=disabled",
+        "-Dsandbox_tests=false",
+        "-Dsystemd_user_services=false",
+        "-Dtiff=disabled",
+        "-Dwebp=disabled"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://download.gnome.org/sources/localsearch/3.11/localsearch-3.11.1.tar.xz",
+          "sha256": "7b39a6c28a8acf2b172f15b2fb5ee7c7a3764c447c2f4a14caa239b7ebe61942"
+        }
+      ],
+      "cleanup": [
+        "/share/dbus-1/services/io.github.Morph777.WaxHive.LocalSearch3.service"
+      ]
+    },
+    {
+      "name": "totem-pl-parser",
+      "buildsystem": "meson",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://download.gnome.org/sources/totem-pl-parser/3.26/totem-pl-parser-3.26.7.tar.xz",
+          "sha256": "60d517c1acabe54ae337f64451264fc76730696eaae26b5480fb37166689b5f3"
+        }
+      ],
+      "cleanup": [
+        "/include",
+        "/share/gtk-doc"
+      ]
+    },
+    {
+      "name": "librest",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Dgtk_doc=false",
+        "-Dexamples=false",
+        "-Dsoup2=false"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://download.gnome.org/sources/librest/0.10/librest-0.10.2.tar.xz",
+          "sha256": "7b6cb912bb3a22cfa7dcf005925dcb62883024db0c09099486e7d6851185c9b8"
+        }
+      ]
+    },
+    {
+      "name": "grilo",
+      "buildsystem": "meson",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://download.gnome.org/sources/grilo/0.3/grilo-0.3.19.tar.xz",
+          "sha256": "0869c81d19ab139c667d79567c14ddcb6cb5cbfc0108d04cade287eb29536706"
+        }
+      ],
+      "cleanup": [
+        "/include",
+        "/bin"
+      ]
+    },
+    {
+      "name": "grilo-plugins",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Denable-dleyna=no",
+        "-Denable-tracker=no",
+        "-Denable-tracker3=yes",
+        "-Denable-bookmarks=no",
+        "-Denable-filesystem=no",
+        "-Denable-freebox=no",
+        "-Denable-local-metadata=no",
+        "-Denable-lua-factory=yes",
+        "-Denable-metadata-store=no",
+        "-Denable-optical-media=no",
+        "-Denable-podcasts=no",
+        "-Denable-thetvdb=no",
+        "-Denable-tmdb=no",
+        "-Denable-youtube=no",
+        "-Dhelp=no"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://download.gnome.org/sources/grilo-plugins/0.3/grilo-plugins-0.3.18.tar.xz",
+          "sha256": "8e3ce74ee717c3c322d0cb0f8df26bb0914028a5d016e28055ffb49cc9a46c5e"
+        }
+      ],
+      "cleanup": [
+        "/include"
+      ]
+    },
+    {
+      "name": "waxhive",
+      "buildsystem": "meson",
+      "sources": [
+        {
+          "type": "dir",
+          "path": ".",
+          "skip": [
+            ".git",
+            "builddir",
+            ".flatpak-builder",
+            "dist",
+            "__pycache__"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -46,6 +46,7 @@ class ArtistAlbumsWidget(Gtk.Box):
     __gtype_name__ = 'ArtistAlbumsWidget'
 
     _listbox = Gtk.Template.Child()
+    narrow = GObject.Property(type=bool, default=False)
 
     def __init__(self, application: Application) -> None:
         """Initialize the ArtistAlbumsWidget
@@ -58,17 +59,19 @@ class ArtistAlbumsWidget(Gtk.Box):
         self._coreartist: Optional[CoreArtist] = None
 
     def _update_model(self) -> None:
-        if self._coreartist is not None:
-            self._listbox.bind_model(
-                self._coreartist.props.model, self._add_album)
+        self._listbox.bind_model(
+            self._coreartist.props.model if self._coreartist else None,
+            self._add_album)
 
     def _add_album(self, corealbum):
         row = Gtk.ListBoxRow()
         row.props.selectable = False
         row.props.activatable = False
-        row.props.focusable = False
+        row.props.focusable = True
 
         widget = AlbumWidget(self._application)
+        widget.set_compact()
+        self.bind_property("narrow", widget, "narrow", GObject.BindingFlags.SYNC_CREATE)
         widget.props.corealbum = corealbum
         widget.props.active_coreobject = self._coreartist
         widget.props.show_artist_label = False

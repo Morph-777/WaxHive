@@ -5,12 +5,14 @@
 from gi.repository import Adw, GLib, GObject, Gdk, Gio, Gtk
 from gettext import gettext as _
 
+from gnomemusic.listnavigation import ListNavigation
 from gnomemusic.trackerwrapper import TrackerState
 from gnomemusic.utils import View
 from gnomemusic.views.albumsview import AlbumsView
 from gnomemusic.views.artistsview import ArtistsView
 from gnomemusic.views.searchview import SearchView
 from gnomemusic.views.playlistsview import PlaylistsView
+from gnomemusic.views.nowplayingview import NowPlayingView
 from gnomemusic.widgets.statusnavigationpage import StatusNavigationPage
 from gnomemusic.widgets.headerbar import HeaderBar
 from gnomemusic.widgets.playertoolbar import PlayerToolbar  # noqa: F401
@@ -39,9 +41,10 @@ class Window(Adw.ApplicationWindow):
 
         :param Gtk.Application app: Application object
         """
-        super().__init__(application=app, title=_("Music"))
+        super().__init__(application=app, title="WaxHive")
 
         self._app = app
+        self._list_navigation = ListNavigation()
 
         self.set_size_request(360, 294)
         WindowPlacement(self)
@@ -146,6 +149,7 @@ class Window(Adw.ApplicationWindow):
         self.views[View.ALBUM] = AlbumsView(self._app)
         self.views[View.ARTIST] = ArtistsView(self._app)
         self.views[View.PLAYLIST] = PlaylistsView(self._app)
+        self.views[View.NOW_PLAYING] = NowPlayingView(self._app)
 
         self._search_view = SearchView(self._app)
         self._search.bind_property(
@@ -158,13 +162,23 @@ class Window(Adw.ApplicationWindow):
             GObject.BindingFlags.BIDIRECTIONAL
             | GObject.BindingFlags.SYNC_CREATE)
 
-        for i in self.views[View.ALBUM:]:
-            if i.props.title:
+        for i in (self.views[View.ALBUM], self.views[View.ARTIST],
+                  self.views[View.NOW_PLAYING], self.views[View.PLAYLIST]):
+            if i is self.views[View.ALBUM]:
+                self._stack.add_named(i, i.props.name)
+            elif i.props.title:
                 stackpage = self._stack.add_titled(
                     i, i.props.name, i.props.title)
                 stackpage.props.icon_name = i.props.icon_name
+                if i is self.views[View.NOW_PLAYING]:
+                    desktop = Adw.Breakpoint.new(
+                        Adw.BreakpointCondition.parse("min-width: 1101px"))
+                    desktop.add_setter(stackpage, "visible", False)
+                    self.add_breakpoint(desktop)
             else:
                 self._stack.add_named(i, i.props.name)
+
+        self._stack.props.visible_child_name = "artists"
 
     @GObject.Property(
         type=HeaderBar, default=None, flags=GObject.ParamFlags.READABLE)
@@ -199,6 +213,12 @@ class Window(Adw.ApplicationWindow):
             self.views[View.PLAYLIST], "rename_active", False)
         unicode_char = chr(Gdk.keyval_to_unicode(keyval))
 
+        if (not search_active and not rename_active
+                and modifiers in (0, shift_mask)
+                and unicode_char.isprintable() and not unicode_char.isspace()
+                and self._list_navigation.handle(self.get_focus(), unicode_char)):
+            return Gdk.EVENT_STOP
+
         # Open the search bar when typing printable chars.
         if ((not search_active
                 and self._search_view is not None
@@ -222,7 +242,8 @@ class Window(Adw.ApplicationWindow):
             ("search_bar_open", self._search_bar_open, ["<Ctrl>F"]),
             ("view_albums", self._view_albums, ["<Alt>1", "<Alt>KP_1"]),
             ("view_artists", self._view_artists, ["<Alt>2", "<Alt>KP_2"]),
-            ("view_playlists", self._view_playlists, ["<Alt>3", "<Alt>KP_3"])
+            ("view_playlists", self._view_playlists, ["<Alt>3", "<Alt>KP_3"]),
+            ("view_now_playing", self._view_now_playing, ["<Alt>4", "<Alt>KP_4"])
         ]
 
         for action, callback, accel in action_entries:
@@ -266,6 +287,13 @@ class Window(Adw.ApplicationWindow):
             self, action: Gio.SimpleAction,
             param: GLib.Variant | None) -> None:
         self._switch_to_view("artists")
+
+    def _view_now_playing(self, action, param):
+        view = self.views[View.NOW_PLAYING]
+        if view is not None and not self._stack.get_page(view).get_visible():
+            self._switch_to_view("artists")
+        else:
+            self._switch_to_view("now-playing")
 
     def _view_playlists(
             self, action: Gio.SimpleAction,

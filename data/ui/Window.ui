@@ -12,8 +12,9 @@
     </child>
     <child>
       <object class="AdwToolbarView">
+        <style><class name="music-workspace-toolbar"/></style>
         <property name="top-bar-style">raised</property>
-        <property name="bottom-bar-style">raised</property>
+        <property name="bottom-bar-style">flat</property>
         <child>
           <object class="AdwToastOverlay" id="_toast_overlay">
             <child>

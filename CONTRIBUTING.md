@@ -1,6 +1,6 @@
 # Contributing
 
-[Our guide](https://welcome.gnome.org/app/Music/) has everything to get you started.
+For WaxHive builds and maintenance, start with [README.md](README.md). Report fork-specific issues in [Morph-777/WaxHive](https://github.com/Morph-777/WaxHive/issues). The original [GNOME Music contributor guide](https://welcome.gnome.org/app/Music/) remains useful for upstream work.
 
 ## Build instructions
 

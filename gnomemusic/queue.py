@@ -212,8 +212,11 @@ class Queue(GObject.GObject):
             return None
 
         if song is None:
-            if self.props.repeat_mode == RepeatMode.SHUFFLE:
-                self._model.shuffle(0, randint(0, n_items - 1))
+            if self.props.repeat_mode in (
+                    RepeatMode.SHUFFLE, RepeatMode.SHUFFLE_ALBUMS):
+                self._model.shuffle(
+                    0, randint(0, n_items - 1),
+                    albums=self.props.repeat_mode == RepeatMode.SHUFFLE_ALBUMS)
             else:
                 self._model.deshuffle()
             position = 0
@@ -229,9 +232,11 @@ class Queue(GObject.GObject):
         for idx, coresong in enumerate(self._model):
             if coresong == song:
                 coresong.props.state = SongWidget.State.PLAYING
-                if self.props.repeat_mode == RepeatMode.SHUFFLE:
-                    self._model.shuffle(0, idx)
-                    self._position = 0
+                if self.props.repeat_mode in (
+                    RepeatMode.SHUFFLE, RepeatMode.SHUFFLE_ALBUMS):
+                    self._model.shuffle(
+                        0, idx, albums=self.props.repeat_mode == RepeatMode.SHUFFLE_ALBUMS)
+                    self._position = self._model.get_song_position(song)
                 else:
                     self._position = idx
                 self._validate_song(song)
@@ -253,8 +258,11 @@ class Queue(GObject.GObject):
 
     def _on_repeat_mode_changed(
             self, queue: Queue, param: GObject.ParamSpecBoxed) -> None:
-        if self.props.repeat_mode == RepeatMode.SHUFFLE:
-            self._model.shuffle(self.props.position)
+        if self.props.repeat_mode in (
+                RepeatMode.SHUFFLE, RepeatMode.SHUFFLE_ALBUMS):
+            self._model.shuffle(
+                self.props.position,
+                albums=self.props.repeat_mode == RepeatMode.SHUFFLE_ALBUMS)
         elif self.props.repeat_mode in [RepeatMode.NONE, RepeatMode.ALL]:
             self._model.deshuffle(self.props.position)
 

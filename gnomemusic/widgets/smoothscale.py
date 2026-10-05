@@ -51,6 +51,11 @@ class SmoothScale(Gtk.Scale):
         ctrl.connect("released", self._on_button_released)
         self.add_controller(ctrl)
 
+        scroll = Gtk.EventControllerScroll(flags=Gtk.EventControllerScrollFlags.BOTH_AXES)
+        scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        scroll.connect("scroll", lambda *args: True)
+        self.add_controller(scroll)
+
         self.connect('change-value', self._on_smooth_scale_seek)
 
     # FIXME: This is a workaround for not being able to pass the player

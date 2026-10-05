@@ -69,7 +69,9 @@ class RepeatMode(Enum):
     NONE = 0, "media-playlist-consecutive-symbolic", _("Shuffle/Repeat Off")
     SONG = 1, "media-playlist-repeat-song-symbolic", _("Repeat Song")
     ALL = 2, "media-playlist-repeat-symbolic", _("Repeat All")
-    SHUFFLE = 3, "media-playlist-shuffle-symbolic", _("Shuffle")
+    SHUFFLE = 3, "media-playlist-shuffle-symbolic", _("Shuffle Tracks")
+
+    SHUFFLE_ALBUMS = 4, "media-playlist-shuffle-symbolic", _("Shuffle Albums")
 
     # The type checking is necessary to avoid false positives
     # See: https://github.com/python/mypy/issues/1021
@@ -97,6 +99,7 @@ class View(IntEnum):
     ALBUM = 0
     ARTIST = 1
     PLAYLIST = 2
+    NOW_PLAYING = 3
 
 
 def get_artist_from_cursor_dict(cursor_dict: Dict[str, Any]) -> str:

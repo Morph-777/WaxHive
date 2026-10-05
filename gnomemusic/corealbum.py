@@ -99,6 +99,7 @@ class CoreAlbum(GObject.GObject):
                     coredisc = model[position + i]
                     coredisc.connect(
                         "notify::duration", self._on_duration_changed)
+            self._on_duration_changed(None, None)
 
     def _on_duration_changed(self, coredisc, duration):
         duration = 0

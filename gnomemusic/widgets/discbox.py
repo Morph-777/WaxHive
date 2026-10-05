@@ -72,10 +72,11 @@ class DiscBox(Gtk.ListBoxRow):
             "disc-nr", self, "disc-nr",
             GObject.BindingFlags.SYNC_CREATE)
 
+        self._list_box.set_activate_on_single_click(False)
         self._list_box.bind_model(self._model, self._create_widget)
 
     def _create_widget(self, coresong):
-        song_widget = SongWidget(coresong)
+        song_widget = SongWidget(coresong, context_menu_only=True)
         song_widget.props.menu = SongWidgetMenu(
             self._application, song_widget, self._corealbum)
 

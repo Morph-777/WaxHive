@@ -18,6 +18,7 @@ class PreferencesDialog(Adw.PreferencesDialog):
 
     __gtype_name__ = "PreferencesDialog"
 
+    _rounded_artwork_row = Gtk.Template.Child()
     _inhibit_suspend_row = Gtk.Template.Child()
     _repeatmode_row = Gtk.Template.Child()
     _replay_gain_row = Gtk.Template.Child()
@@ -30,6 +31,10 @@ class PreferencesDialog(Adw.PreferencesDialog):
         super().__init__()
 
         self._settings = application.props.settings
+
+        self._settings.bind(
+            "rounded-artwork", self._rounded_artwork_row, "active",
+            Gio.SettingsBindFlags.DEFAULT)
 
         self._repeatmode_row.props.selected = self._settings.get_enum("repeat")
         self._repeatmode_row.connect(

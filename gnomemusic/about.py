@@ -140,9 +140,9 @@ def show_about(app_id, version, parent):
     ]
 
     about = Adw.AboutDialog(
-        application_name=_("Music"),
+        application_name="WaxHive",
         application_icon=app_id,
-        developer_name=_("The GNOME Project"),
+        developer_name="Morph and the GNOME Music contributors",
         developers=developers,
         designers=designers,
         # Translators should localize the following string which
@@ -150,8 +150,8 @@ def show_about(app_id, version, parent):
         # credit to the translator(s).
         translator_credits=_("translator-credits"),
         version=version,
-        website="https://apps.gnome.org/Music/",
-        issue_url="https://gitlab.gnome.org/GNOME/gnome-music/-/issues/",
+        website="https://github.com/Morph-777/WaxHive",
+        issue_url="https://github.com/Morph-777/WaxHive/issues",
         copyright=_("© The GNOME Music Developers"),
         license_type=Gtk.License.GPL_2_0)
 

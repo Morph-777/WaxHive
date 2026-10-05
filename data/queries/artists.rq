@@ -1,27 +1,24 @@
 SELECT
   ?id
   ?artist
+  ?albumCount
 WHERE {
   SERVICE <dbus:{bus_name}> {
     GRAPH tracker:Audio {
       SELECT
-       (COALESCE(?album_artist, ?artist) AS ?id)
-       ?artist_bind AS ?artist
+        ?id
+        ?artist
+        (COUNT(DISTINCT ?album) AS ?albumCount)
       WHERE {
-        ?song a nmm:MusicPiece;
-                nmm:musicAlbum ?album;
-                nmm:artist ?artist .
-        OPTIONAL {
-          ?album a nmm:MusicAlbum;
-                   nmm:albumArtist ?album_artist .
-        }
-        BIND(COALESCE(
-          nmm:artistName(?album_artist),
-          nmm:artistName(?artist)) AS ?artist_bind)
+        ?song a nmm:MusicPiece; nmm:musicAlbum ?album .
+        OPTIONAL { ?album nmm:albumArtist ?album_artist . }
+        BIND(COALESCE(?album_artist,
+          IRI("urn:gnome-music:unknown-album-artist")) AS ?id)
+        BIND(COALESCE(nmm:artistName(?album_artist), "") AS ?artist)
         {location_filter}
       }
-      GROUP BY ?artist_bind
-      ORDER BY ?artist_bind
+      GROUP BY ?id ?artist
+      ORDER BY ?artist
     }
   }
 }

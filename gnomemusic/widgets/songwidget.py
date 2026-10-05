@@ -77,7 +77,8 @@ class SongWidget(Gtk.ListBoxRow):
         PLAYING = 1
         UNPLAYED = 2
 
-    def __init__(self, coresong, can_dnd=False, show_artist_and_album=False):
+    def __init__(self, coresong, can_dnd=False, show_artist_and_album=False,
+                 context_menu_only=False):
         """Instanciates a SongWidget
 
         :param Corsong coresong: song associated with the widget
@@ -85,6 +86,17 @@ class SongWidget(Gtk.ListBoxRow):
         :param bool show_artist_and_album: display artist and album
         """
         super().__init__()
+
+        self._context_menu_only = context_menu_only
+        self._context_menu = None
+        if context_menu_only:
+            click = Gtk.GestureClick(button=Gdk.BUTTON_SECONDARY)
+            click.connect("pressed", self._on_context_menu)
+            self.add_controller(click)
+            self.connect("unrealize", self._on_context_unrealize)
+            keys = Gtk.EventControllerKey()
+            keys.connect("key-pressed", self._on_menu_key)
+            self.add_controller(keys)
 
         self.props.coresong = coresong
         self._state = SongWidget.State.UNPLAYED
@@ -199,6 +211,10 @@ class SongWidget(Gtk.ListBoxRow):
         """
         self._state = value
 
+        if value == SongWidget.State.PLAYING:
+            self.add_css_class("playing")
+        else:
+            self.remove_css_class("playing")
         style_ctx = self._title_label.get_style_context()
 
         style_ctx.remove_class('dim-label')
@@ -254,7 +270,7 @@ class SongWidget(Gtk.ListBoxRow):
         :returns: song menu
         :rtype: Gtk.PopoverMenu
         """
-        return self._menu_button.props.popover
+        return self._context_menu if self._context_menu_only else self._menu_button.props.popover
 
     @menu.setter  # type: ignore
     def menu(self, menu: Optional[Gtk.PopoverMenu]) -> None:
@@ -262,5 +278,37 @@ class SongWidget(Gtk.ListBoxRow):
 
         :param Gtk.PopoverMenu menu: new song menu
         """
+        if self._context_menu_only:
+            if self._context_menu and self._context_menu.get_parent():
+                self._context_menu.unparent()
+            self._context_menu = menu
+            self._menu_button.set_visible(False)
+            return
         self._menu_button.props.popover = menu
         self._menu_button.props.visible = (menu is not None)
+
+    def _on_context_menu(self, gesture, n_press, x, y):
+        menu = self._context_menu
+        if menu is None:
+            return
+        if menu.get_parent() is None:
+            menu.set_parent(self)
+        rectangle = Gdk.Rectangle()
+        rectangle.x, rectangle.y = int(x), int(y)
+        rectangle.width, rectangle.height = 1, 1
+        menu.set_pointing_to(rectangle)
+        menu.popup()
+        if gesture:
+            gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+
+    def _on_menu_key(self, controller, keyval, keycode, state):
+        if (keyval == Gdk.KEY_Menu
+                or (keyval == Gdk.KEY_F10 and state & Gdk.ModifierType.SHIFT_MASK)):
+            self._on_context_menu(None, 1, 0, self.get_height())
+            return True
+        return False
+
+    def _on_context_unrealize(self, widget):
+        if self._context_menu and self._context_menu.get_parent():
+            self._context_menu.popdown()
+            self._context_menu.unparent()

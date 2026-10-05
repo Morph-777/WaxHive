@@ -5,9 +5,7 @@
 from gettext import gettext as _
 from gi.repository import GObject, Gtk
 
-from gnomemusic.coverpaintable import CoverPaintable
 from gnomemusic.gstplayer import Playback
-from gnomemusic.utils import ArtSize, DefaultIconType
 from gnomemusic.player import Player
 from gnomemusic.widgets.repeatmodebutton import RepeatModeButton  # noqa: F401
 from gnomemusic.widgets.smoothscale import SmoothScale  # noqa: F401
@@ -26,7 +24,6 @@ class PlayerToolbar(Gtk.ActionBar):
     __gtype_name__ = 'PlayerToolbar'
 
     _artist_label = Gtk.Template.Child()
-    _cover_image = Gtk.Template.Child()
     _duration_label = Gtk.Template.Child()
     _next_button = Gtk.Template.Child()
     _play_button = Gtk.Template.Child()
@@ -38,19 +35,36 @@ class PlayerToolbar(Gtk.ActionBar):
     _song_info_box = Gtk.Template.Child()
     _title_label = Gtk.Template.Child()
     _volume_button = Gtk.Template.Child()
+    _transport_box = Gtk.Template.Child()
+    _controls_box = Gtk.Template.Child()
 
     def __init__(self):
         super().__init__()
 
         self._player = None
 
-        self._cover_image.set_size_request(
-            ArtSize.SMALL.width, ArtSize.SMALL.height)
-        self._cover_image.props.pixel_size = ArtSize.SMALL.height
-        self._cover_image.props.paintable = CoverPaintable(
-            self, ArtSize.SMALL, DefaultIconType.ALBUM)
-
         self._tooltip = TwoLineTip()
+
+    @GObject.Property(type=bool, default=False)
+    def compact(self):
+        return self._transport_box.get_orientation() == Gtk.Orientation.VERTICAL
+
+    @compact.setter
+    def compact(self, value):
+        self._transport_box.set_orientation(
+            Gtk.Orientation.VERTICAL if value else Gtk.Orientation.HORIZONTAL)
+        self._transport_box.set_spacing(4 if value else 18)
+        self._controls_box.set_halign(Gtk.Align.CENTER if value else Gtk.Align.START)
+        parent = self._volume_button.get_parent()
+        target = self._controls_box if value else self._progress_scale.get_parent()
+        if parent is not target:
+            parent.remove(self._volume_button)
+            if value:
+                target.append(self._volume_button)
+            else:
+                target.insert_child_after(self._volume_button, self._progress_scale)
+        self._volume_button._scale.set_size_request(70 if value else 140, -1)
+        self._artist_label.set_visible(not value)
 
     # FIXME: This is a workaround for not being able to pass the player
     # object via init when using Gtk.Builder.
@@ -92,6 +106,7 @@ class PlayerToolbar(Gtk.ActionBar):
             "mute", self._volume_button, "mute",
             GObject.BindingFlags.BIDIRECTIONAL
             | GObject.BindingFlags.SYNC_CREATE)
+        self._update_view(self._player)
 
     @Gtk.Template.Callback()
     def _on_progress_value_changed(self, progress_scale):
@@ -114,7 +129,7 @@ class PlayerToolbar(Gtk.ActionBar):
         if (self._player.props.state == Playback.STOPPED
                 and not self._player.props.has_next
                 and not self._player.props.has_previous):
-            self.props.revealed = False
+            self.props.revealed = True
             return
 
         self.props.revealed = True
@@ -141,6 +156,14 @@ class PlayerToolbar(Gtk.ActionBar):
         :param Player player: The main player object
         """
         coresong = player.props.current_song
+        if coresong is None:
+            self._title_label.set_label(_("Nothing Playing"))
+            self._artist_label.set_label(_("Choose a track from your library"))
+            self._duration_label.set_label("0:00")
+            self._progress_time_label.set_label("0:00")
+            self._play_button.set_sensitive(False)
+            self._sync_prev_next()
+            return
         self._duration_label.props.label = utils.seconds_to_string(
             coresong.props.duration)
         self._progress_time_label.props.label = "0:00"
@@ -157,7 +180,6 @@ class PlayerToolbar(Gtk.ActionBar):
         self._tooltip.props.title = title
         self._tooltip.props.subtitle = artist
 
-        self._cover_image.props.paintable.props.coreobject = coresong
 
     @Gtk.Template.Callback()
     def _on_tooltip_query(self, widget, x, y, kb, tooltip, data=None):

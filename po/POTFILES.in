@@ -1,10 +1,10 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 data/org.gnome.Music.desktop.in.in
-data/org.gnome.Music.metainfo.xml.in.in
 data/org.gnome.Music.gschema.xml
-data/ui/AlbumsSearchNavigationPage.ui
+data/org.gnome.Music.metainfo.xml.in.in
 data/ui/AlbumWidget.ui
+data/ui/AlbumsSearchNavigationPage.ui
 data/ui/ArtistsSearchNavigationPage.ui
 data/ui/ArtistsView.ui
 data/ui/HeaderBar.ui
@@ -15,10 +15,10 @@ data/ui/PreferencesDialog.ui
 data/ui/RepeatModeButton.ui
 data/ui/SearchHeaderBar.ui
 data/ui/SearchView.ui
-data/ui/shortcuts-dialog.ui
 data/ui/SongWidgetMenu.ui
 data/ui/StatusNavigationPage.ui
 data/ui/VolumeButton.ui
+data/ui/shortcuts-dialog.ui
 gnomemusic/__init__.py
 gnomemusic/about.py
 gnomemusic/application.py
@@ -32,9 +32,11 @@ gnomemusic/songtoast.py
 gnomemusic/utils.py
 gnomemusic/views/albumsview.py
 gnomemusic/views/artistsview.py
+gnomemusic/views/nowplayingview.py
 gnomemusic/views/playlistsview.py
 gnomemusic/views/searchview.py
 gnomemusic/widgets/albumwidget.py
+gnomemusic/widgets/nowplayingpanel.py
 gnomemusic/widgets/playertoolbar.py
 gnomemusic/widgets/playlistcontrols.py
 gnomemusic/widgets/playlistdialog.py

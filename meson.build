@@ -1,5 +1,5 @@
 project('gnome-music',
-    version: '51.alpha',
+    version: '0.1.0',
     meson_version: '>= 0.59.0'
 )
 
@@ -22,8 +22,8 @@ if not py_installation.language_version().version_compare('>= 3.10')
 endif
 
 # Constants
-PACKAGE_URL = 'https://apps.gnome.org/Music/'
-PACKAGE_URL_BUG = 'https://gitlab.gnome.org/GNOME/gnome-music/issues'
+PACKAGE_URL = 'https://github.com/Morph-777/WaxHive'
+PACKAGE_URL_BUG = PACKAGE_URL + '/issues'
 PROJECT_RDNN_NAME = 'org.gnome.Music'
 
 # NAME_SUFFIX is used in the about dialog
@@ -35,7 +35,7 @@ else
   NAME_SUFFIX = ''
 endif
 
-APPLICATION_ID = 'org.gnome.Music@0@'.format(PROFILE)
+APPLICATION_ID = 'io.github.Morph777.WaxHive@0@'.format(PROFILE)
 PYTHON_DIR = py_installation.get_path('purelib')
 PKGDATA_DIR = join_paths(get_option('prefix'), get_option('datadir'), APPLICATION_ID)
 PKGLIB_DIR = join_paths(get_option('prefix'), get_option('libdir'), APPLICATION_ID)
@@ -90,7 +90,7 @@ bin_config.set('local_build', 'False')
 
 configure_file(
     input: 'gnome-music.in',
-    output: 'gnome-music',
+    output: 'waxhive',
     configuration: bin_config,
     install_dir: get_option('bindir')
 )

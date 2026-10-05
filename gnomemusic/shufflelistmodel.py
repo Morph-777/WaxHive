@@ -42,46 +42,77 @@ class ShuffleListModel(GObject.GObject, Gio.ListModel):
         self._model = model
         self._model.connect("items-changed", self._on_items_changed)
 
-        self._shuffle_values: list[int] = []
+        self._shuffle_values: list[int] = list(range(model.get_n_items()))
 
     def _on_items_changed(
             self, model: Gio.ListModel, position: int, removed: int,
             added: int) -> None:
         # FIXME: Deal with item changes during play
+        old_count = len(self._shuffle_values)
         n_items = model.get_n_items()
         self._shuffle_values = list(range(0, n_items))
+        self.items_changed(0, old_count, n_items)
 
     def do_get_item(self, position: int) -> CoreSong:
+        if position >= len(self._shuffle_values):
+            return None
         return self._model.get_item(self._shuffle_values[position])
 
     def do_get_n_items(self):
         return self._model.get_n_items()
 
+    def get_song_position(self, song):
+        for position, item in enumerate(self):
+            if item == song:
+                return position
+        return 0
+
     def do_get_item_type(self):
         return self._model.get_item_type()
 
     def shuffle(
-            self, position: int, initial_song_position: int = 0) -> None:
-        """Shuffle the model
-
-        :param int position: Shuffle the remaining items from this
-            position on
-        :param int initial_song_position: The song index where to
-            start shuffling from
-        """
+            self, position: int, initial_song_position: int | None = None,
+            albums: bool = False) -> None:
+        """Shuffle upcoming tracks or albums, preserving playback history."""
         self.props.shuffled = True
         if self._model.get_n_items() == 0:
             return
 
-        list_before = list(self._shuffle_values[:position + 1])
-        values_after = self._shuffle_values[position + 1:]
-        list_after = sample(values_after, len(values_after))
-        self._shuffle_values = list_before + list_after
+        if initial_song_position is not None:
+            prefix = [initial_song_position]
+            remaining = [i for i in range(self._model.get_n_items())
+                         if i != initial_song_position]
+        else:
+            prefix = self._shuffle_values[:position + 1]
+            remaining = self._shuffle_values[position + 1:]
 
-        self._shuffle_values.remove(initial_song_position)
-        self._shuffle_values = [initial_song_position] + self._shuffle_values
+        if albums:
+            def album_key(index):
+                song = self._model.get_item(index)
+                return song.props.album_urn or (song.props.album, song.props.artist)
 
-        self._log.debug(f"Shuffled order: {self._shuffle_values}")
+            def track_key(index):
+                song = self._model.get_item(index)
+                return (song.props.album_disc_number, song.props.track_number, index)
+
+            current_album = album_key(prefix[-1])
+            groups = {}
+            for index in remaining:
+                groups.setdefault(album_key(index), []).append(index)
+            current_tail = sorted(groups.pop(current_album, []), key=track_key)
+            if initial_song_position is not None:
+                # Earlier tracks in the selected album remain playback history.
+                earlier = [i for i in current_tail
+                           if track_key(i) < track_key(initial_song_position)]
+                prefix = earlier + prefix
+                current_tail = [i for i in current_tail if i not in earlier]
+            keys = sample(list(groups), len(groups))
+            remaining = current_tail + [i for key in keys
+                                        for i in sorted(groups[key], key=track_key)]
+        else:
+            remaining = sample(remaining, len(remaining))
+        self._shuffle_values = prefix + remaining
+        self.items_changed(0, len(self._shuffle_values), len(self._shuffle_values))
 
     def deshuffle(self, position: int | None = None) -> None:
         """Deshuffle the model
@@ -100,3 +131,4 @@ class ShuffleListModel(GObject.GObject, Gio.ListModel):
             self._shuffle_values = sorted(self._shuffle_values)
 
         self._log.debug(f"Deshuffled order: {self._shuffle_values}")
+        self.items_changed(0, len(self._shuffle_values), len(self._shuffle_values))

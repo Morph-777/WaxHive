@@ -1,25 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk" version="4.0"/>
   <template class="ArtistsView" parent="AdwBin">
     <child>
-      <object class="AdwOverlaySplitView" id="_split_view">
-        <property name="sidebar">
-          <object class="GtkScrolledWindow">
-            <child>
-              <object class="GtkListView" id="_sidebar">
-                <signal name="activate" handler="_on_artist_activated"/>
-                <style>
-                  <class name="navigation-sidebar"/>
-                </style>
-              </object>
-            </child>
-          </object>
-        </property>
+      <object class="AdwOverlaySplitView" id="_playback_split">
+        <property name="sidebar-position">end</property>
+        <property name="min-sidebar-width">280</property>
+        <property name="max-sidebar-width">340</property>
+        <property name="sidebar-width-fraction">0.26</property>
         <property name="content">
-          <object class="GtkScrolledWindow" id="_artist_view">
-            <property name="hexpand">true</property>
-            <property name="vexpand">true</property>
+          <object class="AdwOverlaySplitView" id="_split_view">
+            <property name="min-sidebar-width">180</property>
+            <property name="max-sidebar-width">240</property>
+            <property name="sidebar-width-fraction">0.25</property>
+            <property name="sidebar">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Album Artists</property>
+                    <property name="xalign">0</property>
+                    <property name="margin-start">18</property>
+                    <property name="margin-top">18</property>
+                    <property name="margin-bottom">12</property>
+                    <style><class name="heading"/></style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="vexpand">true</property>
+                    <property name="hscrollbar-policy">never</property>
+                    <child>
+                      <object class="GtkListView" id="_sidebar">
+                        <property name="single-click-activate">false</property>
+                        <signal name="activate" handler="_on_artist_activated"/>
+                        <style><class name="navigation-sidebar"/></style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <property name="content">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="spacing">12</property>
+                    <property name="margin-start">18</property>
+                    <property name="margin-end">18</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">12</property>
+                    <child>
+                      <object class="GtkButton" id="_artists_button">
+                        <property name="icon-name">sidebar-show-symbolic</property>
+                        <property name="tooltip-text" translatable="yes">Show Album Artists</property>
+                        <property name="visible">false</property>
+                        <signal name="clicked" handler="_show_artists"/>
+                        <style><class name="flat"/></style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="_artist_heading">
+                        <property name="label" translatable="yes">Albums and Tracks</property>
+                        <property name="xalign">0</property>
+                        <property name="ellipsize">end</property>
+                        <property name="hexpand">true</property>
+                        <style><class name="heading"/></style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="_artist_view">
+                    <property name="hscrollbar-policy">never</property>
+                    <property name="hexpand">true</property>
+                    <property name="vexpand">true</property>
+                  </object>
+                </child>
+              </object>
+            </property>
           </object>
         </property>
       </object>
