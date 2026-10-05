@@ -288,7 +288,7 @@ class Application(Adw.Application):
     def do_startup(self):
         Adw.Application.do_startup(self)
         Adw.StyleManager.get_default().set_color_scheme(
-            Adw.ColorScheme.PREFER_LIGHT)
+            Adw.ColorScheme.DEFAULT)
         self._set_actions()
 
     def do_activate(self):

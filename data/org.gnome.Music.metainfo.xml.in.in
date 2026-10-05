@@ -41,6 +41,9 @@
   <launchable type="desktop-id">@appid@.desktop</launchable>
   <translation type="gettext">@appid@</translation>
   <releases>
+    <release version="0.1.1" date="2026-10-05">
+      <description><p>Follow the desktop appearance and load the user’s custom GTK 4 theme inside the Flatpak sandbox.</p></description>
+    </release>
     <release version="0.1.0" date="2026-10-05">
       <description><p>First WaxHive release: GNOME Music with a three-panel desktop library and compact playback controls.</p></description>
     </release>

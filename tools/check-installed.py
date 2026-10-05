@@ -13,7 +13,7 @@ import gnomemusic
 assert gnomemusic.__file__.startswith('/app/'), gnomemusic.__file__
 from gnomemusic.application import Application
 from gnomemusic.utils import View
-app = Application('io.github.Morph777.WaxHive', '0.1.0')
+app = Application('io.github.Morph777.WaxHive', '0.1.1')
 errors = []
 def failed(*args):
     errors.append(args[1])

@@ -13,7 +13,7 @@ flatpak install --user ./WaxHive.flatpak
 flatpak run io.github.Morph777.WaxHive
 ```
 
-The launcher appears as **WaxHive**. No package layering, distrobox, or checkout is needed to run it. The GNOME 51 runtime is downloaded from Flathub if necessary. Music in your Music folder is available inside the sandbox; the app uses the desktop's music index when available and includes its own indexer as a fallback.
+The launcher appears as **WaxHive**. It follows the desktop appearance and reads custom GTK 4 styles from your `~/.config/gtk-4.0` directory with read-only access. No package layering, distrobox, or checkout is needed to run it. The GNOME 51 runtime is downloaded from Flathub if necessary. Music in your Music folder is available inside the sandbox; the app uses the desktop's music index when available and includes its own indexer as a fallback.
 
 For a library elsewhere, explicitly grant its directory:
 
